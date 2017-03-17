@@ -47,10 +47,13 @@ def main():
 
     pyexec = "python2.7"
     callcello = "./cello_client.py"
+    ''' submit job'''
     subprocess.call(['python2.7', 'cello_client.py', 'submit', '--jobid', 'pythonTest', '--verilog', 'AND.v', '--inputs', 'Inputs.txt', '--outputs', 'Outputs.txt'])
+    '''get logic circuit file'''
     with open('logic_circuit.txt', 'w') as f:
         subprocess.call(['python2.7', 'cello_client.py', 'get_results', '--jobid','pythonTest', '--filename', 'pythonTest_A000_logic_circuit.txt'],stdout = f) 
     sys.stdout = sys.__stdout__
+    '''read logic circuit file, get componenets used in componentdict dictionary'''
     with open('logic_circuit.txt','r') as f:
         lines = f.readlines()
     for i in range(len(lines)):
@@ -72,11 +75,13 @@ def main():
                 for gate_name in data[ind]:
                     if data[ind][gate_name] == components[2]:
                         componentdict[ind] = ('NOR',components[2])
+    '''print score'''
     score = lines[end].split()[2]
     print(score)
 
-
+    '''try stretching x = 1.5'''
     x=1.5
+    '''itr is which item in component dict, here itr = 2, which is the third component, the NOR gate'''
     itr = 2
     ymax = data[componentdict.keys()[itr]]['parameters'][0]['value']
     ymin = data[componentdict.keys()[itr]]['parameters'][1]['value']
@@ -96,10 +101,10 @@ def main():
     data[componentdict.keys()[itr]]['variables'][0]['on_threshold'] = on_thresholdnew
     data[componentdict.keys()[itr]]['variables'][0]['off_threshold'] = off_thresholdnew
 
-
+    '''re-write the JSON'''
     with open('Eco1C1G1T1_MOD.UCF.json', 'w') as f:
         f.write(json.dumps(data, indent=2))
-
+    '''upload the json and run a new test with new json file'''
     #subprocess.call(['python2.7','exclude_cytometry_data.py','./Eco1C1G1T1_MOD.UCF.json','>','./Eco1C1G1T1_MOD_EX.UCF.json'],stdout = open())
     subprocess.call(['python2.7','exclude_cytometry_data.py','./Eco1C1G1T1_MOD.UCF.json'],stdout = open('Eco1C1G1T1_MOD_EX.UCF.json','wb'))
     subprocess.call(['python2.7', 'cello_client.py', 'post_ucf', '--name', 'MOD_EX.UCF.json', '--filepath', './Eco1C1G1T1_MOD_EX.UCF.json'])
