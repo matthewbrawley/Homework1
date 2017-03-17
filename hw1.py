@@ -4,6 +4,9 @@ import sys
 import itertools
 import subprocess
 import cello_client
+import numpy as np
+import json
+from pprint import pprint
 '''
 Run Instructions: 
 
@@ -16,22 +19,52 @@ Ensure cello_client.py is in repository as well as verilog and UCF file.
 '''
 def read_verilog(vfile):
     f = open(vfile,'r')
-    vcontent = f.read()
+    lines = f.readlines()
     f.close
-    print vcontent
-    ans = vcontent.find('begin')
-    print ans
-def main():
 
+    line1 = lines[0]
+    numoutputs = line1.count('out')-1
+    outinds = line1.find(out)
+    for i in range(numoutputs-1):
+        line1(outinds(i+1))
+    numinputs = line1.count('in')-1
+    ins = np.zeros(numinputs)
+    for k in range(numinputs+1):
+        ins[k] = 'in'+str(k+1)
+    print(ins)
+    for i in range(len(lines)):
+        if lines[i].count('begin')==1:
+            caseline = lines[i+1]
+            if caseline.count('in') != numinputs:
+                numinputs_case = caseline.count('in')
+            else:
+                numinputs_case = numinputs
+            # for k in range(len(numinputs_case)+1)
+            #     inp(k)=('in%d',k+1)
+    '''for line in lines:
+        line = line.strip()
+        print line'''
+
+def parseucf(ucf):
+    x = json.load(ucf)
+
+def main():
     vfile = sys.argv[1]
     ucf = sys.argv[2]
     n = sys.argv[3]
-    read_verilog(vfile)
+    #read_verilog(vfile)
+    #parseucf(ucf)
     pyexec = "python2.7"
     callcello = "./cello_client.py"
-    subprocess.call([pyexec,callcello,"get_inputs"])
-
-
-
+    subprocess.call(['python2.7', 'cello_client.py', 'submit', '--jobid', 'pythonTest4', '--verilog', 'AND.v', '--inputs', 'Inputs.txt', '--outputs', 'Outputs.txt'])
+    with open('dnacompiler_output.txt', 'w') as f:
+        subprocess.call(['python2.7', 'cello_client.py', 'get_results', '--jobid','pythonTest4', '--filename', 'pythonTest4_dnacompiler_output.txt'],stdout = f) 
+    sys.stdout = sys.__stdout__
+    print('testreturnedstdout')
+    # with open('Eco1C1G1T1.UCF.json') as data_file:
+    #     data = json.load(data_file)
+    # pprint(data[23])
 if __name__ == "__main__":
     main()
+
+
