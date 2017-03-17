@@ -1,4 +1,5 @@
 import json
+import io
 from pprint import pprint
 
 with open('main.json') as data_file:
@@ -18,4 +19,10 @@ print(rf)
 for i in range(len(rf)):
     print(data[rf[i]])
 
+with open('data.json', 'w') as f:
+    #str = json.dumps(data, indent=4)
+    #f.write(to_unicode(str))
+    f.write(json.dumps(data, indent=2))
+
 #pprint(data)
+
