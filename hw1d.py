@@ -11,6 +11,7 @@ import json
 from pprint import pprint
 import io
 import time
+import os
 
 '''
 Run Instructions: 
@@ -23,7 +24,6 @@ Ensure cello_client.py is in repository as well as verilog and UCF file.
 def no_combinations(rf,data,componentdict,prom_inc):
     x = 1.5
     xn = 1.05
-    
     for itr in componentdict.keys():
         ymax = data[itr]['parameters'][0]['value']
         ymin = data[itr]['parameters'][1]['value']
@@ -49,6 +49,11 @@ def no_combinations(rf,data,componentdict,prom_inc):
 
 
 def main():
+    if not os.path.exists('./UCFs'):
+        os.makedirs('./UCFs')
+    if not os.path.exists('./logictxts'):
+        os.makedirs('./logictxts')
+
     vfile = sys.argv[1]
     ucf = sys.argv[2]
     select_num = int(sys.argv[3])
@@ -107,37 +112,48 @@ def main():
     print('The original score is: {}'.format(score_original))
     '''check if number of gates in ckt = number of gates we can edit, save ourselves combinations computation'''
     if len(componentdict)==select_num:
+        UCF_list = []
         for stronger_p in range(1,5):
             data = no_combinations(rf,data,componentdict,stronger_p)
-            UCF_name = 
+            UCF_name = 'Eco1C1G1T1'+'SP_'+str(stronger_p)+'_'+'.UCF.json'
+            UCF_name_path = './UCFs/'+UCF_name
+            with open(UCF_name_path, 'w') as f:
+                f.write(json.dumps(data, indent=2))
+            subprocess.call([pyexec,'./exclude_cytometry_data.py',UCF_name_path],stdout = open(UCF_name_path,'wb'))
+            subprocess.call([pyexec, callcello, 'post_ucf', '--name', UCF_name, '--filepath', UCF_name_path])
+            subprocess.call([pyexec, callcello, 'validate_ucf', '--name',UCF_name])
+            UCF_list.append(UCF_name)
 
-        
-
-    '''re-write the JSON'''
-    with open('Eco1C1G1T1_MOD.UCF.json', 'w') as f:
-        f.write(json.dumps(data, indent=2))
-    '''upload the json and run a new test with new json file'''
-    subprocess.call([pyexec,'./exclude_cytometry_data.py','./Eco1C1G1T1_MOD.UCF.json'],stdout = open('Eco1C1G1T1_MOD_EX.UCF.json','wb'))
-    subprocess.call([pyexec, callcello, 'post_ucf', '--name', 'MOD_EX.UCF.json', '--filepath', './Eco1C1G1T1_MOD_EX.UCF.json'])
-    subprocess.call([pyexec, callcello, 'validate_ucf', '--name', 'MOD_EX.UCF.json'])
+    # '''re-write the JSON'''
+    # with open('Eco1C1G1T1_MOD.UCF.json', 'w') as f:
+    #     f.write(json.dumps(data, indent=2))
+    # '''upload the json and run a new test with new json file'''
+    # subprocess.call([pyexec,'./exclude_cytometry_data.py','./Eco1C1G1T1_MOD.UCF.json'],stdout = open('Eco1C1G1T1_MOD_EX.UCF.json','wb'))
+    # subprocess.call([pyexec, callcello, 'post_ucf', '--name', 'MOD_EX.UCF.json', '--filepath', './Eco1C1G1T1_MOD_EX.UCF.json'])
+    # subprocess.call([pyexec, callcello, 'validate_ucf', '--name', 'MOD_EX.UCF.json'])
     
     #Wait for server to be ready with posted UCF
+    print('waiting 2 minutes')
     time.sleep(120)
-    subprocess.call([pyexec, callcello, 'submit', '--jobid', 'ModifyTest', '--verilog', verilog, '--inputs', './Inputs.txt', '--outputs', './Outputs.txt', '--options=-UCF MOD_EX.UCF.json -plasmid false -eugene false'])
+    for UCF_name in UCF_list:
+        testname = 'test_'+UCF_name
+        subprocess.call([pyexec, callcello, 'submit', '--jobid', testname, '--verilog', verilog, '--inputs', './Inputs.txt', '--outputs', './Outputs.txt', '--options=-UCF UCF_name -plasmid false -eugene false'])
 
-    '''download resultant logic circuit file to get score'''
-    with open('logic_circuit2.txt', 'w') as f:
-        subprocess.call([pyexec, callcello, 'get_results', '--jobid','ModifyTest', '--filename', 'ModifyTest_A000_logic_circuit.txt'],stdout = f) 
-    with open('logic_circuit2.txt','r') as f:
-        lines = f.readlines()
-    for i in range(len(lines)):
-        if lines[i].count("Circuit_score") == 1:
-            end = i
-    score = lines[end].split()[2]
-    print('The final score is: {}'.format(score))
+        '''download resultant logic circuit file to get score'''
+        logictextname = UCF_name+'.txt'
+        logictextnamepath = './logictxts/'+UCF_name+'.txt'
+        cello_file_name = testname+'_A000_logic_circuit.txt'
+        with open(logictextnamepath, 'w') as f:
+            subprocess.call([pyexec, callcello, 'get_results', '--jobid',testname, '--filename', cello_file_name],stdout = f) 
+        with open(logictextnamepath,'r') as f:
+            lines = f.readlines()
+        for i in range(len(lines)):
+            if lines[i].count("Circuit_score") == 1:
+                end = i
+        score = lines[end].split()[2]
+        print('The final score is: {}'.format(score))
 
-    percentgain = np.log10()
-    
+        
 if __name__ == "__main__":
     main()
 
