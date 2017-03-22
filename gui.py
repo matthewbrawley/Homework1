@@ -8,8 +8,6 @@ pyexec = 'python2.7'
 filename = 'hw1c.py'
 
 class CelloGui(tk.Frame):
-    ''' An example application for TkInter.  Instantiate
-        and call the run method to run. '''
     def __init__(self, master):
         # Initialize window using the parent's constructor
         tk.Frame.__init__(self,
