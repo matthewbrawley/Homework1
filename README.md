@@ -94,7 +94,10 @@ You can now easily switch between using Cello in the command line and also wheth
 #### Run the tool:
 
 ```
-python ResOpt.py [Verilog] [UCF.json] [N]
+For MacOS:
+	python ResOpt.py [Verilog] [UCF.json] [N]
+For Linux:
+	python gui.py
 ```
 
 *N defines the maximum number of gates to alter*
