@@ -1,4 +1,103 @@
-## Homework1
+# Homework1
+
+## Setup
+
+### REQUIRED
+
+*This tool is built as a Python script that interacts with the Cello API to run tests of genetic circuits.*
+
+#### Cello API:
+
+```
+cello_client.py
+exclude_cytometry_data.py`
+setup.py
+```
+	
+#### Cello API Extension Tool - Response Optimization:
+
+```
+ResOpt.py [NAME HERE]
+```
+
+#### Files Required:
+
+```	
+User Constraint File/Library: 	*.UCF.json
+Verilog design file:			*.v
+Inputs:							*.txt
+Outputs:						*.txt
+```
+
+*The python tool requires that all needed files are in the directory from which you run the tool*
+
+### Installation 
+
+*This tool has been tested on both Linux and Unix environments*
+
+#### For MacOS:
+
+~~~~
+	In terminal:
+	Install brew on MacOS: 			/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	If brew installed before:		brew update
+	Install Python through brew:	brew install python	
+	Install pip through brew:		brew install pip
+	Install cello trough pip:		pip install cello
+	Other python packages needed:	sudo pip install requests
+									sudo pip install urllib3
+									sudo pip install Biopython
+~~~~
+
+#### For Linux:
+
+```
+The commands will be the same in the terminal except the commands will be “apt-get install” or “sudo apt-get install”
+```
+
+### Using the Tool
+
+#### Caveats:
+
+Before continuing, make sure the “cello_client.py” file has the following line set at the end:
+
+		~~~~~~~~~~~~~~~~~~~~~~~~~~
+		if __name__ == '__main__':
+			cli()
+		~~~~~~~~~~~~~~~~~~~~~~~~~~
+		
+Without the above call to cli(), there will be problems running Cello in the Python script tool.
+
+#### Setup in cello_client.py:
+
+Replace as follows with your credentials:
+		
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			#self.username = os.environ.get('CELLOUSER')
+        		#self.password = os.environ.get('CELLOPASS')
+
+        		self.username = "FILL ME"
+        		self.password = "FILL ME"
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		
+If you want to use a local instance of Cello, replace as follows:
+
+		 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		        #self.url_root = "http://cellocad.org:8080"
+       			self.url_root = "http://127.0.0.1:8080"
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		
+You can now easily switch between using Cello in the command line and also whether it runs online or locally.
+
+#### Run the tool:
+
+```
+python ResOpt.py [Verilog] [UCF.json] [N]
+```
+
+*N defines the maximum number of gates to alter*
+
+## Command Help
 
 ### Matches for response
 
