@@ -91,10 +91,10 @@ def main():
     pyexec = 'python2.7'
     callcello = './cello_client.py'
     verilog = './'+vfile
-    
+    options = '--options=-UCF '+ucf+' -plasmid false -eugene false'
     ''' submit job'''
 
-    subprocess.call([pyexec,callcello,'submit','--jobid','job_id','--verilog',verilog,'--inputs','./Inputs.txt','--outputs','./Outputs.txt'])
+    subprocess.call([pyexec,callcello,'submit','--jobid','job_id','--verilog',verilog,'--inputs','./Inputs.txt','--outputs','./Outputs.txt',options])
     
     '''get logic circuit file'''
 
