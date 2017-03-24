@@ -20,11 +20,10 @@ This should be less than or equal to the number of repressors in the UCF file.
 Ensure cello_client.py is in repository as well as verilog and UCF file.
 '''
 
-def no_combinations(rf,data,componentdict):
+def Engineer_Ckt(rf,data,componentdict):
     x = 1.5
     xn = 1.05
     for itr in componentdict.keys():
-        #data[itr]['parameters'][0]['value']
         ymax = data[itr]['parameters'][0]['value']
         ymin = data[itr]['parameters'][1]['value']
         ymaxnew = round(ymax*x,3)
@@ -32,12 +31,9 @@ def no_combinations(rf,data,componentdict):
         off_threshold = data[itr]['variables'][0]['off_threshold']
         on_threshold = data[itr]['variables'][0]['on_threshold']
         k = data[itr]['parameters'][2]['value']
-        #knew = k*sRBS
-        #print(k)
         n = data[itr]['parameters'][3]['value']
         nnew = n*xn
         off_thresholdnew = k*((ymaxnew-ymaxnew/2)/(ymaxnew/2-yminnew))**(1./nnew)
-        #print(on_threshold)
         on_thresholdnew = k*((ymaxnew-yminnew*2)/(yminnew*2-yminnew))**(1./nnew)
         off_thresholdnew = round(off_thresholdnew,9)
         on_thresholdnew = round(on_thresholdnew, 9)
@@ -46,9 +42,31 @@ def no_combinations(rf,data,componentdict):
         data[itr]['variables'][0]['on_threshold'] = on_thresholdnew
         data[itr]['variables'][0]['off_threshold'] = off_thresholdnew
         data[itr]['parameters'][3]['value'] = nnew
-        #data[itr]['parameters'][2]['value'] = knew
     return data
 
+
+def find_last_gates(lines, num_gates, select_num, rf, data):
+    gates_to_edit = {}
+    for line in lines:
+        if line.count('NO') ==1:
+            components = line.split()
+            for ind in rf:
+                for gate_name in data[ind]:
+                    if data[ind][gate_name] == components[2]:
+                        gates_to_edit[ind] = ('NOT/NOR',components[2])
+    return gates_to_edit
+
+
+def find_last_gate_lines(lines, num_gates, select_num, rf, data):
+    k = num_gates
+    for i in range(len(lines)):
+        if lines[i].count('NO') == 1:
+            k = k-1
+            if k == select_num:
+                gates_to_edit = find_last_gates(lines[i+1:],num_gates,select_num, rf, data)
+                return gates_to_edit
+            else:
+                pass
 
 
 def main():
@@ -56,33 +74,36 @@ def main():
     ucf = sys.argv[2]
     select_num = int(sys.argv[3])
 
-    # Import standard UCF JSON file
+    '''Import standard UCF JSON file'''
     with open(ucf) as data_file:
         data = json.load(data_file)
 
-    # Find the location of all response functions in the JSON file
+    '''Find the location of all response functions in the JSON file'''
     tftable = [li['collection'] == 'response_functions' for li in data]
 
-    # Create table of all locations of response functions
+    '''Create table of all locations of response functions'''
     rf = []
     for i in range(len(tftable)):
         if tftable[i]:
             rf.append(i)
 
-    # Change to how you want to call python, where cello_client.py is located, and which Verilog file you want to use
+    '''Change to how you want to call python, where cello_client.py is located, and which Verilog file you want to use'''
     pyexec = 'python2.7'
     callcello = './cello_client.py'
     verilog = './'+vfile
     
     ''' submit job'''
-    #subprocess.call([pyexec,callcello,'submit','--jobid','pythonTest','--verilog',verilog,'--inputs','./Inputs.txt','--outputs','./Outputs.txt'])
+
+    subprocess.call([pyexec,callcello,'submit','--jobid','job_id','--verilog',verilog,'--inputs','./Inputs.txt','--outputs','./Outputs.txt'])
     
     '''get logic circuit file'''
+
     with open('logic_circuit.txt', 'w') as f:
-        subprocess.call([pyexec,callcello,'get_results','--jobid','pythonTest','--filename','pythonTest_A000_logic_circuit.txt'],stdout = f)
+        subprocess.call([pyexec,callcello,'get_results','--jobid','job_id','--filename','job_id_A000_logic_circuit.txt'],stdout = f)
     sys.stdout = sys.__stdout__
     
     '''read logic circuit file, get components used in componentdict dictionary'''
+
     with open('logic_circuit.txt','r') as f:
         lines = f.readlines()
     for i in range(len(lines)):
@@ -92,7 +113,7 @@ def main():
             end = i
     componentdict = {}
     for line in lines[start:end]:
-        if line.count('NOT') == 1:
+        if line.count('NOT') ==1:
             components = line.split()
             for ind in rf:
                 for gate_name in data[ind]:
@@ -104,59 +125,45 @@ def main():
                 for gate_name in data[ind]:
                    if data[ind][gate_name] == components[2]:
                         componentdict[ind] = ('NOR',components[2])
-    print(componentdict)
+    num_gates = len(componentdict)
+
     '''print score'''
+
     score_original = lines[end].split()[2]
+
     print('The original score is: {}'.format(score_original))
+
     '''check if number of gates in ckt = number of gates we can edit, save ourselves combinations computation'''
-    if len(componentdict)==select_num:
-        data = no_combinations(rf,data,componentdict)
-    '''try stretching x = 1.5'''
-    # x=1.5
-    # '''itr is which item in component dict, here itr = 0,1,2, each component in the circuit is modified'''
-    # for itr in range(3):
-    #     ymax = data[componentdict.keys()[itr]]['parameters'][0]['value']
-    #     ymin = data[componentdict.keys()[itr]]['parameters'][1]['value']
-    #     ymaxnew = ymax*x
-    #     yminnew = ymin/x
-    #     ymaxnew = round(ymaxnew,3)
-    #     yminnew = round(yminnew,3)
-        
-    #     off_threshold = data[componentdict.keys()[itr]]['variables'][0]['on_threshold']
-    #     on_threshold = data[componentdict.keys()[itr]]['variables'][0]['off_threshold']
-    #     k = data[componentdict.keys()[itr]]['parameters'][2]['value']
-    #     n = data[componentdict.keys()[itr]]['parameters'][3]['value']
-    #     off_thresholdnew = k*((ymaxnew-ymaxnew/2)/(ymaxnew/2-yminnew))**(1./n)
-    #     on_thresholdnew = k*((ymaxnew-yminnew*2)/(yminnew*2-yminnew))**(1./n)
-    #     off_thresholdnew = round(off_thresholdnew,9)
-    #     on_thresholdnew = round(on_thresholdnew, 9)
 
-    #     # Print and store
-    #     print('Current gate: {}'.format(componentdict.keys()[itr]))
-    #     print('YMax is: {}'.format(ymaxnew))
-    #     print('YMin is: {}'.format(yminnew))
-    #     print('On_Threshold is: {}'.format(on_thresholdnew))
-    #     print('Off_Threshold is: {}\n'.format(off_thresholdnew))
+    if num_gates == select_num:
+        data = Engineer_Ckt(rf,data,componentdict)
+    if num_gates > select_num:
+        gates_to_edit = find_last_gate_lines(lines[start:end], num_gates, select_num, rf, data)
+        data = Engineer_Ckt(rf,data,gates_to_edit)
+    if num_gates < select_num:
+        print('n must be equal to or less than the number of gates in the circuit!')
+        exit(1)
 
-    #     data[componentdict.keys()[itr]]['parameters'][0]['value'] = ymaxnew
-    #     data[componentdict.keys()[itr]]['parameters'][1]['value'] = yminnew
-    #     data[componentdict.keys()[itr]]['variables'][0]['on_threshold'] = on_thresholdnew
-    #     data[componentdict.keys()[itr]]['variables'][0]['off_threshold'] = off_thresholdnew
     '''re-write the JSON'''
+
     with open('Eco1C1G1T1_MOD.UCF.json', 'w') as f:
         f.write(json.dumps(data, indent=2))
+
     '''upload the json and run a new test with new json file'''
+
     subprocess.call([pyexec,'./exclude_cytometry_data.py','./Eco1C1G1T1_MOD.UCF.json'],stdout = open('Eco1C1G1T1_MOD_EX.UCF.json','wb'))
     subprocess.call([pyexec, callcello, 'post_ucf', '--name', 'MOD_EX.UCF.json', '--filepath', './Eco1C1G1T1_MOD_EX.UCF.json'])
     subprocess.call([pyexec, callcello, 'validate_ucf', '--name', 'MOD_EX.UCF.json'])
     
-    #Wait for server to be ready with posted UCF
+    '''Wait for server to be ready with posted UCF'''
+
     time.sleep(120)
-    subprocess.call([pyexec, callcello, 'submit', '--jobid', 'ModifyTest', '--verilog', verilog, '--inputs', './Inputs.txt', '--outputs', './Outputs.txt', '--options=-UCF MOD_EX.UCF.json -plasmid false -eugene false'])
+    subprocess.call([pyexec, callcello, 'submit', '--jobid', 'Modified_job', '--verilog', verilog, '--inputs', './Inputs.txt', '--outputs', './Outputs.txt', '--options=-UCF MOD_EX.UCF.json -plasmid false -eugene false'])
 
     '''download resultant logic circuit file to get score'''
+
     with open('logic_circuit2.txt', 'w') as f:
-        subprocess.call([pyexec, callcello, 'get_results', '--jobid','ModifyTest', '--filename', 'ModifyTest_A000_logic_circuit.txt'],stdout = f) 
+        subprocess.call([pyexec, callcello, 'get_results', '--jobid','Modified_job', '--filename', 'Modified_job_A000_logic_circuit.txt'],stdout = f) 
     with open('logic_circuit2.txt','r') as f:
         lines = f.readlines()
     for i in range(len(lines)):
@@ -165,8 +172,22 @@ def main():
     score = lines[end].split()[2]
     print('The final score is: {}'.format(score))
 
-    percentgain = np.log10()
-    
+    percentgain = 100*np.log10(float(score))/np.log10(float(score_original))-100
+    print('the percentage gain in the score is: {}%'.format(percentgain))
+
+
+    if num_gates == select_num:
+        print('Protein engineering methods of stretch and increase curve slope were applied to:')
+        for key in componentdict:
+            print(componentdict[key][1])
+    if num_gates > select_num:
+        print('Protein engineering methods of stretch and increase curve slope were applied to:')
+        for key in gates_to_edit:
+            print(gates_to_edit[key][1])
+
+    print('See modified UCF file in current directory.')
+
+
 if __name__ == "__main__":
     main()
 
