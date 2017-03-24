@@ -1,4 +1,4 @@
-# Homework1
+# Homework 1
 
 ## Setup
 
@@ -10,7 +10,7 @@
 
 ```
 cello_client.py
-exclude_cytometry_data.py`
+exclude_cytometry_data.py
 setup.py
 ```
 	
@@ -24,9 +24,9 @@ ResOpt.py [NAME HERE]
 
 ```	
 User Constraint File/Library: 	*.UCF.json
-Verilog design file:			*.v
-Inputs:							*.txt
-Outputs:						*.txt
+Verilog design file:		*.v
+Inputs:				*.txt
+Outputs:			*.txt
 ```
 
 *The python tool requires that all needed files are in the directory from which you run the tool*
@@ -41,12 +41,12 @@ Outputs:						*.txt
 	In terminal:
 	Install brew on MacOS: 			/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 	If brew installed before:		brew update
-	Install Python through brew:	brew install python	
+	Install Python through brew:		brew install python	
 	Install pip through brew:		brew install pip
 	Install cello trough pip:		pip install cello
-	Other python packages needed:	sudo pip install requests
-									sudo pip install urllib3
-									sudo pip install Biopython
+	Other python packages needed:		sudo pip install requests
+						sudo pip install urllib3
+						sudo pip install Biopython
 ~~~~
 
 #### For Linux:
@@ -71,21 +71,21 @@ Without the above call to cli(), there will be problems running Cello in the Pyt
 #### Setup in cello_client.py:
 
 Replace as follows with your credentials:
-		
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-			#self.username = os.environ.get('CELLOUSER')
-        		#self.password = os.environ.get('CELLOPASS')
 
-        		self.username = "FILL ME"
-        		self.password = "FILL ME"
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		#self.username = os.environ.get('CELLOUSER')
+		#self.password = os.environ.get('CELLOPASS')
+
+		self.username = "FILL ME"
+		self.password = "FILL ME"
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		
 If you want to use a local instance of Cello, replace as follows:
 
-		 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		        #self.url_root = "http://cellocad.org:8080"
-       			self.url_root = "http://127.0.0.1:8080"
-			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		#self.url_root = "http://cellocad.org:8080"
+		self.url_root = "http://127.0.0.1:8080"
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		
 You can now easily switch between using Cello in the command line and also whether it runs online or locally.
 
