@@ -50,9 +50,11 @@
 	```
 	python exclude_cytometry_data.py ./Eco1C1G1T1_MOD.UCF.json > ./Eco1C1G1T1_MOD_EX.UCF.json
 	```
+	
 	```
 	cello post_ucf --name MOD_EX.UCF.json --filepath ./Eco1C1G1T1_MOD_EX.UCF.json
 	```
+	
 	```
 	cello submit --jobid ModifyTest --verilog ./test/AND.v --inputs ./test/Inputs.txt --outputs ./test/Outputs.txt --options="-UCF MOD_EX.UCF.json -plasmid false -eugene false"
 	```
