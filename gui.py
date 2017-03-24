@@ -5,9 +5,11 @@ import subprocess
 import Tkinter as tk
 
 pyexec = 'python2.7'
-filename = 'hw1c.py'
+filename = 'ResOpt.py'
 
 class CelloGui(tk.Frame):
+    ''' An example application for TkInter.  Instantiate
+        and call the run method to run. '''
     def __init__(self, master):
         # Initialize window using the parent's constructor
         tk.Frame.__init__(self,
@@ -50,3 +52,6 @@ class CelloGui(tk.Frame):
  
 app = CelloGui(tk.Tk())
 app.run()
+
+
+exit(0)
