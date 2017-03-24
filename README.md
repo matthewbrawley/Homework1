@@ -43,7 +43,6 @@ Outputs:			*.txt
 	If brew installed before:		brew update
 	Install Python through brew:		brew install python	
 	Install pip through brew:		brew install pip
-	Tkinter for GUI:			brew install python-tk
 	Install cello trough pip:		pip install cello
 	Other python packages needed:		sudo pip install requests
 						sudo pip install urllib3
@@ -54,6 +53,8 @@ Outputs:			*.txt
 
 ```
 The commands will be the same in the terminal except the commands will be “apt-get install” or “sudo apt-get install”
+
+Must also install Tkinter: sudo apt-get install python-tk
 ```
 
 ### Using the Tool
