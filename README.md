@@ -95,13 +95,13 @@ You can now easily switch between using Cello in the command line and also wheth
 
 Update the settings below in the script for your system (how you call Python 2.7 - for example python2.7 or python) and the location of your cello_client.py.
 
-	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    	'''Change to how you want to call python, where cello_client.py is located, and which Verilog file you want to use'''
-    	pyexec = 'python2.7'
-    	callcello = './cello_client.py'
-    	verilog = './'+vfile
-    	options = '--options=-UCF '+ucf+' -plasmid false -eugene false'
-    	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    		Change to how you want to call python, where cello_client.py is located, and which Verilog file you want to use
+    		pyexec = 'python2.7'
+    		callcello = './cello_client.py'
+    		verilog = './'+vfile
+    		options = '--options=-UCF '+ucf+' -plasmid false -eugene false'
+		~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #### Run the tool:
 
